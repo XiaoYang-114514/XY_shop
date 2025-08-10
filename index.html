@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XY妙妙屋 - 极简购物体验</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --border-color: #ddd;
+            --hover-color: #e0e0e0;
+            --active-color: #d0d0d0;
+            --header-color: #222;
+            --footer-color: #666;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--header-color);
+        }
+        
+        .dev-mode-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .dev-mode-btn:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .product-card {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .product-name {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+        }
+        
+        .product-price {
+            font-size: 16px;
+            color: var(--header-color);
+            margin: 0 0 15px 0;
+        }
+        
+        .add-to-cart {
+            width: 100%;
+            padding: 8px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .add-to-cart:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .add-to-cart:active {
+            background-color: var(--active-color);
+        }
+        
+        .cart-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+        }
+        
+        .cart-items {
+            margin-bottom: 20px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .cart-total {
+            text-align: right;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .checkout-btn {
+            padding: 10px 20px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            float: right;
+        }
+        
+        .checkout-btn:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .modal-title {
+            margin-top: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .modal-btn:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .modal-btn.primary {
+            background-color: var(--header-color);
+            color: white;
+            border-color: var(--header-color);
+        }
+        
+        .modal-btn.primary:hover {
+            background-color: #111;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px 0;
+            color: var(--footer-color);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--footer-color);
+        }
+        
+        .add-product-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--border-color);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .add-product-btn:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .edit-product {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .edit-product:hover {
+            background-color: var(--hover-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>XY妙妙屋</h1>
+            <button class="dev-mode-btn">开发者</button>
+        </header>
+        
+        <div class="products-grid" id="products-container">
+            <div class="empty-message">
+                <p>目前没有商品，请开发者添加商品</p>
+            </div>
+        </div>
+        
+        <div class="cart-section">
+            <h2>购物车</h2>
+            <div class="cart-items" id="cart-items">
+                <div class="empty-message">
+                    <p>购物车是空的</p>
+                </div>
+            </div>
+            <div class="cart-total" id="cart-total" style="display: none;">
+                总计: ¥<span id="total-amount">0</span>
+            </div>
+            <button class="checkout-btn" id="checkout-btn" style="display: none;">结算</button>
+        </div>
+        
+        <footer>
+            <p>© 2023 XY妙妙屋 - 极简购物体验</p>
+        </footer>
+    </div>
+    
+    <!-- 开发者登录模态框 -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">开发者登录</h3>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="输入密码">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="cancel-login">取消</button>
+                <button class="modal-btn primary" id="confirm-login">登录</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑商品模态框 -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="product-modal-title">添加商品</h3>
+            <div class="form-group">
+                <label for="product-name">商品名称</label>
+                <input type="text" id="product-name" placeholder="输入商品名称">
+            </div>
+            <div class="form-group">
+                <label for="product-price">价格 (¥)</label>
+                <input type="number" id="product-price" placeholder="输入价格" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="product-desc">商品描述</label>
+                <textarea id="product-desc" rows="3" placeholder="输入商品描述"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="cancel-product">取消</button>
+                <button class="modal-btn primary" id="save-product">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 开发者设置模态框 -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">开发者设置</h3>
+            <div class="form-group">
+                <label for="payment-url">付款跳转URL</label>
+                <input type="text" id="payment-url" placeholder="https://example.com/payment">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="cancel-settings">取消</button>
+                <button class="modal-btn primary" id="save-settings">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 存储数据
+        let products = [];
+        let cart = [];
+        let isDevMode = false;
+        let paymentUrl = "https://example.com/payment";
+        let editingProductId = null;
+        
+        // DOM元素
+        const productsContainer = document.getElementById('products-container');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const totalAmountEl = document.getElementById('total-amount');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        
+        // 模态框
+        const loginModal = document.getElementById('login-modal');
+        const productModal = document.getElementById('product-modal');
+        const settingsModal = document.getElementById('settings-modal');
+        
+        // 按钮
+        const devModeBtn = document.querySelector('.dev-mode-btn');
+        const cancelLoginBtn = document.getElementById('cancel-login');
+        const confirmLoginBtn = document.getElementById('confirm-login');
+        const cancelProductBtn = document.getElementById('cancel-product');
+        const saveProductBtn = document.getElementById('save-product');
+        const cancelSettingsBtn = document.getElementById('cancel-settings');
+        const saveSettingsBtn = document.getElementById('save-settings');
+        
+        // 初始化
+        function init() {
+            loadData();
+            renderProducts();
+            renderCart();
+            
+            // 事件监听
+            devModeBtn.addEventListener('click', openLoginModal);
+            cancelLoginBtn.addEventListener('click', closeLoginModal);
+            confirmLoginBtn.addEventListener('click', confirmLogin);
+            cancelProductBtn.addEventListener('click', closeProductModal);
+            saveProductBtn.addEventListener('click', saveProduct);
+            cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+            saveSettingsBtn.addEventListener('click', saveSettings);
+            checkoutBtn.addEventListener('click', checkout);
+            
+            // 开发者模式检查
+            checkDevMode();
+        }
+        
+        // 加载数据
+        function loadData() {
+            const savedProducts = localStorage.getItem('xy_products');
+            const savedCart = localStorage.getItem('xy_cart');
+            const savedPaymentUrl = localStorage.getItem('xy_payment_url');
+            
+            if (savedProducts) products = JSON.parse(savedProducts);
+            if (savedCart) cart = JSON.parse(savedCart);
+            if (savedPaymentUrl) paymentUrl = savedPaymentUrl;
+        }
+        
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('xy_products', JSON.stringify(products));
+            localStorage.setItem('xy_cart', JSON.stringify(cart));
+            localStorage.setItem('xy_payment_url', paymentUrl);
+        }
+        
+        // 渲染商品
+        function renderProducts() {
+            productsContainer.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsContainer.innerHTML = `
+                    <div class="empty-message">
+                        <p>目前没有商品${isDevMode ? '，点击下方按钮添加商品' : ''}</p>
+                    </div>
+                `;
+            } else {
+                products.forEach(product => {
+                    const productEl = document.createElement('div');
+                    productEl.className = 'product-card';
+                    productEl.innerHTML = `
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-price">¥${product.price.toFixed(2)}</p>
+                        <p>${product.desc || ''}</p>
+                        <button class="add-to-cart" data-id="${product.id}">加入购物车</button>
+                        ${isDevMode ? `<button class="edit-product" data-id="${product.id}">编辑</button>` : ''}
+                    `;
+                    
+                    productsContainer.appendChild(productEl);
+                });
+            }
+            
+            // 添加"添加商品"按钮（开发者模式）
+            if (isDevMode) {
+                const addProductBtn = document.createElement('div');
+                addProductBtn.className = 'add-product-btn';
+                addProductBtn.innerHTML = '<h3>+ 添加商品</h3>';
+                addProductBtn.addEventListener('click', () => openProductModal());
+                productsContainer.appendChild(addProductBtn);
+            }
+            
+            // 添加事件监听
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', addToCart);
+            });
+            
+            if (isDevMode) {
+                document.querySelectorAll('.edit-product').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = e.target.getAttribute('data-id');
+                        openProductModal(productId);
+                    });
+                });
+            }
+        }
+        
+        // 渲染购物车
+        function renderCart() {
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = `
+                    <div class="empty-message">
+                        <p>购物车是空的</p>
+                    </div>
+                `;
+                cartTotalEl.style.display = 'none';
+                checkoutBtn.style.display = 'none';
+                return;
+            }
+            
+            cartItemsEl.innerHTML = '';
+            
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.productId);
+                if (!product) return;
+                
+                const cartItemEl = document.createElement('div');
+                cartItemEl.className = 'cart-item';
+                cartItemEl.innerHTML = `
+                    <span>${product.name} × ${item.quantity}</span>
+                    <span>¥${(product.price * item.quantity).toFixed(2)}</span>
+                `;
+                
+                cartItemsEl.appendChild(cartItemEl);
+            });
+            
+            // 计算总计
+            const total = cart.reduce((sum, item) => {
+                const product = products.find(p => p.id === item.productId);
+                return sum + (product ? product.price * item.quantity : 0);
+            }, 0);
+            
+            totalAmountEl.textContent = total.toFixed(2);
+            cartTotalEl.style.display = 'block';
+            checkoutBtn.style.display = 'block';
+        }
+        
+        // 添加到购物车
+        function addToCart(e) {
+            const productId = e.target.getAttribute('data-id');
+            const existingItem = cart.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    productId,
+                    quantity: 1
+                });
+            }
+            
+            saveData();
+            renderCart();
+        }
+        
+        // 结算
+        function checkout() {
+            // 在实际应用中，这里应该跳转到支付页面
+            // 我们使用开发者设置的URL
+            window.location.href = paymentUrl;
+        }
+        
+        // 开发者模式功能
+        function checkDevMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const devParam = urlParams.get('dev');
+            
+            if (devParam === 'true') {
+                isDevMode = true;
+                devModeBtn.textContent = '开发者模式';
+                renderProducts();
+            }
+        }
+        
+        function openLoginModal() {
+            if (isDevMode) {
+                // 如果已经是开发者模式，打开设置
+                openSettingsModal();
+                return;
+            }
+            loginModal.style.display = 'flex';
+        }
+        
+        function closeLoginModal() {
+            loginModal.style.display = 'none';
+        }
+        
+        function confirmLogin() {
+            const password = document.getElementById('password').value;
+            
+            if (password === 'xy114514') {
+                isDevMode = true;
+                devModeBtn.textContent = '开发者模式';
+                closeLoginModal();
+                renderProducts();
+            } else {
+                alert('密码错误');
+            }
+            
+            document.getElementById('password').value = '';
+        }
+        
+        function openProductModal(productId = null) {
+            editingProductId = productId;
+            
+            if (productId) {
+                // 编辑模式
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                document.getElementById('product-modal-title').textContent = '编辑商品';
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-desc').value = product.desc || '';
+            } else {
+                // 添加模式
+                document.getElementById('product-modal-title').textContent = '添加商品';
+                document.getElementById('product-name').value = '';
+                document.getElementById('product-price').value = '';
+                document.getElementById('product-desc').value = '';
+            }
+            
+            productModal.style.display = 'flex';
+        }
+        
+        function closeProductModal() {
+            productModal.style.display = 'none';
+            editingProductId = null;
+        }
+        
+        function saveProduct() {
+            const name = document.getElementById('product-name').value.trim();
+            const price = parseFloat(document.getElementById('product-price').value);
+            const desc = document.getElementById('product-desc').value.trim();
+            
+            if (!name || isNaN(price) || price < 0) {
+                alert('请填写有效的商品名称和价格');
+                return;
+            }
+            
+            if (editingProductId) {
+                // 更新现有商品
+                const index = products.findIndex(p => p.id === editingProductId);
+                if (index !== -1) {
+                    products[index] = {
+                        ...products[index],
+                        name,
+                        price,
+                        desc
+                    };
+                }
+            } else {
+                // 添加新商品
+                products.push({
+                    id: Date.now().toString(),
+                    name,
+                    price,
+                    desc
+                });
+            }
+            
+            saveData();
+            renderProducts();
+            closeProductModal();
+        }
+        
+        function openSettingsModal() {
+            if (!isDevMode) return;
+            
+            document.getElementById('payment-url').value = paymentUrl;
+            settingsModal.style.display = 'flex';
+        }
+        
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+        
+        function saveSettings() {
+            const newPaymentUrl = document.getElementById('payment-url').value.trim();
+            
+            if (!newPaymentUrl) {
+                alert('请输入有效的URL');
+                return;
+            }
+            
+            paymentUrl = newPaymentUrl;
+            saveData();
+            closeSettingsModal();
+        }
+        
+        // 启动应用
+        init();
+    </script>
+</body>
+</html>
